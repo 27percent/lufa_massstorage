@@ -175,7 +175,7 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 		Address = &ConfigurationDescriptor.HID_VendorHID;
 		Size    = sizeof(USB_HID_Descriptor_HID_t);
 	}
-	else if (DescriptorType == HID_DTYPE_Report)
+	else
 	{
 		Address = &HIDReport;
 		Size    = sizeof(HIDReport);

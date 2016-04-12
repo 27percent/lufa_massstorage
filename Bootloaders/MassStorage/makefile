@@ -11,10 +11,10 @@
 
 # Run "make help" for target help.
 
-MCU          = at90usb1287
+MCU          = atmega32u4
 ARCH         = AVR8
-BOARD        = USBKEY
-F_CPU        = 8000000
+BOARD        = M10-A
+F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
 TARGET       = BootloaderMassStorage
@@ -26,8 +26,8 @@ LD_FLAGS     = -Wl,--section-start=.text=$(BOOT_START_OFFSET) $(BOOT_API_LD_FLAG
 # Flash size and bootloader section sizes of the target, in KB. These must
 # match the target's total FLASH size and the bootloader size set in the
 # device's fuses.
-FLASH_SIZE_KB         = 128
-BOOT_SECTION_SIZE_KB  = 8
+FLASH_SIZE_KB         = 32
+BOOT_SECTION_SIZE_KB  = 4
 
 # Bootloader address calculation formulas
 # Do not modify these macros, but rather modify the dependent values above.
@@ -58,18 +58,11 @@ endif
 # Default target
 all:
 
-# Include LUFA-specific DMBS extension modules
-DMBS_LUFA_PATH ?= $(LUFA_PATH)/Build/LUFA
-include $(DMBS_LUFA_PATH)/lufa-sources.mk
-include $(DMBS_LUFA_PATH)/lufa-gcc.mk
-
-# Include common DMBS build system modules
-DMBS_PATH      ?= $(LUFA_PATH)/Build/DMBS/DMBS
-include $(DMBS_PATH)/core.mk
-include $(DMBS_PATH)/cppcheck.mk
-include $(DMBS_PATH)/doxygen.mk
-include $(DMBS_PATH)/dfu.mk
-include $(DMBS_PATH)/gcc.mk
-include $(DMBS_PATH)/hid.mk
-include $(DMBS_PATH)/avrdude.mk
-include $(DMBS_PATH)/atprogram.mk
+# Include LUFA build script makefiles
+include $(LUFA_PATH)/Build/lufa_core.mk
+include $(LUFA_PATH)/Build/lufa_sources.mk
+include $(LUFA_PATH)/Build/lufa_build.mk
+include $(LUFA_PATH)/Build/lufa_cppcheck.mk
+include $(LUFA_PATH)/Build/lufa_doxygen.mk
+include $(LUFA_PATH)/Build/lufa_avrdude.mk
+include $(LUFA_PATH)/Build/lufa_atprogram.mk

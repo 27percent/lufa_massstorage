@@ -99,7 +99,11 @@ void Application_Jump_Check(void)
 
 		/* Disable pull-up after the check has completed */
 		PORTC &= ~(1 << 7);
-	#elif ((BOARD == BOARD_XPLAIN) || (BOARD == BOARD_XPLAIN_REV1))
+	#elif (BOARD == BOARD_CIRCUITPLAYGROUND32U4)
+		/* Check if left button is high (pressed) */
+		JumpToApplication = ! (PIND & (1 << 4));
+
+        #elif ((BOARD == BOARD_XPLAIN) || (BOARD == BOARD_XPLAIN_REV1))
 		/* Disable JTAG debugging */
 		JTAG_DISABLE();
 
@@ -149,7 +153,7 @@ void Application_Jump_Check(void)
 		MagicBootKey = 0;
 
 		// cppcheck-suppress constStatement
-		((void (*)(void))0x7000)();
+		((void (*)(void))0x0000)();
 	}
 }
 
@@ -201,14 +205,27 @@ static void SetupHardware(void)
 
 	/* Bootloader active LED toggle timer initialization */
 	TIMSK1 = (1 << TOIE1);
-	TCCR1B = ((1 << CS11) | (1 << CS10));
+	TCCR1B = (1 << CS10);
+	TCCR4A = (1<<COM4A1) | (1<<PWM4A); // output on OCR4A
+	TCCR4B = (1<<CS40); // 1 divider for clock
+	//TCCR4D = 0; // fast PWM mode
+	OCR4C = 0xFF;
+	//OCR4A = 0;
 }
 
 /** ISR to periodically toggle the LEDs on the board to indicate that the bootloader is active. */
+int8_t incr = 2; // diviz by 256 plz
 ISR(TIMER1_OVF_vect, ISR_BLOCK)
 {
-	LEDs_ToggleLEDs(LEDS_LED1 | LEDS_LED2);
+  OCR4A+=incr;
+  if (OCR4A == 0) {
+    if (incr > 0)
+      incr = -2;
+    else 
+      incr = 2;
+  }
 }
+
 
 /** Event handler for the USB_Connect event. This indicates that the device is enumerating via the status LEDs. */
 void EVENT_USB_Device_Connect(void)
